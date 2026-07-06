@@ -1,27 +1,4 @@
-﻿/*
-V You need to create a game that consists of asking the player what's the result of a math question (i.e. 9 x 9 = ?), collecting the input and adding a point in case of a correct answer.
-
-V A game needs to have at least 5 questions.
-
-V The divisions should result on INTEGERS ONLY and dividends should go from 0 to 100. Example: Your app shouldn't present the division 7/2 to the user, since it doesn't result in an integer.
-
-V Users should be presented with a menu to choose an operation
-
-V You should record previous games in a List and there should be an option in the menu for the user to visualize a history of previous games.
-
-You don't need to record results on a database. Once the program is closed the results will be deleted.
--------------------------------------------
-V Levels of difficulty
-
-V timer
-
-V random game option (random operator)
-
-- DRY principle 
-*/
-
-//using System.Timers;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 Stopwatch timer = new Stopwatch();
 
@@ -33,11 +10,10 @@ bool keepPlaying = false;
 
 Random random = new Random();
 
-//variable to save previous games
-List<string> gameHistory = new List<string>(); //to save various operations done during all games played
-List<double> timeHistory = new List<double>();//to save times for each game played
-List<int> pointsHistory = new List<int>(); //saves points per game played
-List<int> questionsPerGame = new List<int>(); //saves questions per game
+List<string> gameHistory = new List<string>();
+List<double> timeHistory = new List<double>();
+List<int> pointsHistory = new List<int>(); 
+List<int> questionsPerGame = new List<int>(); 
 
 do
 {
@@ -51,7 +27,6 @@ do
     bool validInputs2 = false;
     bool randomGame = false;
 
-    //get input for menu selection and difficulty
     do
     {
         Console.WriteLine("Choose a minigame (input number):");
@@ -98,7 +73,6 @@ do
         }
     } while (validInputs1 != true || validInputs2 != true);
 
-    //start game, generates random numbers based on difficulty selection and handles points
     if (selection <= 4 || selection == 6)
     {
         timer.Start();
@@ -108,14 +82,12 @@ do
         timer.Stop();
         Console.WriteLine($"You took {timer.Elapsed.TotalSeconds:F} seconds");
 
-        //save data for history
         timeHistory.Add(timer.Elapsed.TotalSeconds);
-        timer.Reset(); //reset timer after saving it
+        timer.Reset(); 
         pointsHistory.Add(points);
         questionsPerGame.Add(questions);
     }
 
-    //print game history, leaves a space every 5 
     else if (selection == 5)
     {
         if (gameHistory.Count == 0)
@@ -148,7 +120,7 @@ do
 
     Console.WriteLine("wanna do something else? Press anything to keep playing, write \"EXIT\" to exit");
     readResult = Console.ReadLine();
-    //check user input for possible extra game - on invalid input or "n" closes the app
+
     if (readResult != null && readResult.ToLower().Trim() == "exit")
     {
         keepPlaying = false;
@@ -162,9 +134,6 @@ do
 
 Console.WriteLine("Thanks for playing!");
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-//game logic, redirects code based on the menu selection using switch case
 int mathGame(int points, int selection, int difficulty, int questions, int range, bool randomGame)
 {
     string operation = "";
@@ -208,7 +177,6 @@ int mathGame(int points, int selection, int difficulty, int questions, int range
     return points;
 }
 
-//handles additions, checks if user input is equal to result
 bool Calculation(int range, string operation)
 {
     int n1 = random.Next(0, range);
@@ -260,12 +228,11 @@ bool Calculation(int range, string operation)
     {
         Console.WriteLine("You didn't even give a number!");
 
-        gameHistory.Add($"{n1} {operation} {n2} = {result} - result given: // - false");
+        gameHistory.Add($"{n1} {operation} {n2} = {result} - result given: // - wrong");
         return false;
     }
 }
 
-//sets range based on difficulty chosen by user
 (int, int) rangeSetting(int range, int difficulty, int questions)
 {
     (range, questions) = difficulty switch
@@ -278,134 +245,3 @@ bool Calculation(int range, string operation)
 
     return (range, questions);
 }
-
-/*
-
-//sets range based on difficulty chosen by user
-(int, int) rangeSetting(int range, int difficulty, int questions)
-{
-    (if (difficulty == 1)
-    {
-        range = 21;
-        questions = 5;
-    }
-    else if (difficulty == 2)
-    {
-        range = 51;
-        questions = 7;
-    }
-    else if (difficulty == 3)
-    {
-        range = 101;
-        questions = 10;
-    })
-
-    return (range, questions);
-}
-
-//handles Subtractions, checks if user input is equal to result
-bool Subtraction(int range)
-{
-    int n1 = random.Next(0, range);
-    int n2 = random.Next(0, range);
-    int result = 0;
-    //switches numbers in case n2 is bigger than n1, making sure n1 is always the bigger one
-    if (n2 > n1)
-    {
-        int temp = n1;
-        n1 = n2;
-        n2 = temp;
-    }
-
-    previousNumbers[currentSlot, 0] = n1;
-    previousNumbers[currentSlot, 1] = n2;
-
-    Console.WriteLine(n1 + "-" + n2);
-    readResult = Console.ReadLine();
-
-    if (readResult != null && int.TryParse(readResult, out result) && result == n1 - n2)
-    {
-        Console.WriteLine("You gave the rigt answer!");
-        previousResultGiven[currentSlot] = readResult;
-        return true;
-    }
-    else if (readResult != null && int.TryParse(readResult, out result) && result != n1 - n2)
-    {
-        Console.WriteLine("You gave a wrong answer!");
-        previousResultGiven[currentSlot] = readResult;
-        return false;
-
-    }
-    else
-    {
-        Console.WriteLine("You didn't even give a number!");
-        previousResultGiven[currentSlot] = "//";
-        return false;
-    }
-}
-
-//handles Multiplications, checks if user input is equal to result
-bool Multiplication(int range)
-{
-    int n1 = random.Next(0, range);
-    int n2 = random.Next(0, range);
-    int result = 0;
-    previousNumbers[currentSlot, 0] = n1;
-    previousNumbers[currentSlot, 1] = n2;
-
-    Console.WriteLine(n1 + "*" + n2);
-    readResult = Console.ReadLine();
-
-    if (readResult != null && int.TryParse(readResult, out result) && result == n1 * n2)
-    {
-        Console.WriteLine("You gave the rigt answer!");
-        previousResultGiven[currentSlot] = readResult;
-        return true;
-    }
-    else if (readResult != null && int.TryParse(readResult, out result) && result != n1 * n2)
-    {
-        Console.WriteLine("You gave a wrong answer!");
-        previousResultGiven[currentSlot] = readResult;
-        return false;
-
-    }
-    else
-    {
-        Console.WriteLine("You didn't even give a number!");
-        previousResultGiven[currentSlot] = "//";
-        return false;
-    }
-}
-//handles divisions, checks if user input is equal to result
-bool Division(int range)
-{
-    int n2 = random.Next(1, range);
-    int n1 = n2 * random.Next(1, range / n2);
-    int result = 0;
-    previousNumbers[currentSlot, 0] = n1;
-    previousNumbers[currentSlot, 1] = n2;
-
-    Console.WriteLine(n1 + "/" + n2);
-    readResult = Console.ReadLine();
-
-    if (readResult != null && int.TryParse(readResult, out result) && result == n1 / n2)
-    {
-        Console.WriteLine("You gave the rigt answer!");
-        previousResultGiven[currentSlot] = readResult;
-        return true;
-    }
-    else if (readResult != null && int.TryParse(readResult, out result) && result != n1 / n2)
-    {
-        Console.WriteLine("You gave a wrong answer!");
-        previousResultGiven[currentSlot] = readResult;
-        return false;
-
-    }
-    else
-    {
-        Console.WriteLine("You didn't even give a number!");
-        previousResultGiven[currentSlot] = "//";
-        return false;
-    }
-}
-*/
